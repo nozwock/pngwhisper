@@ -28,7 +28,7 @@ impl FromStr for ChunkType {
                 buf: s.as_bytes().try_into()?,
             })
         } else {
-            bail!("Not valid")
+            bail!("'{}' is not valid because of non-alphabetic chars", s)
         }
     }
 }
