@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::bail;
+use anyhow::{bail, Context};
 
 /// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html#Chunk-naming-conventions
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -25,10 +25,13 @@ impl FromStr for ChunkType {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.chars().all(|c| c.is_ascii_alphabetic()) {
             Ok(Self {
-                buf: s.as_bytes().try_into()?,
+                buf: s
+                    .as_bytes()
+                    .try_into()
+                    .context("Invalid chunk type, it must be of 4 bytes")?,
             })
         } else {
-            bail!("'{}' is not valid because of non-alphabetic chars", s)
+            bail!("Invalid because of non-alphabetic chars")
         }
     }
 }
