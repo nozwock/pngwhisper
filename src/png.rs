@@ -1,4 +1,4 @@
-use std::{fmt::Display, str::FromStr};
+use std::{fmt::Display, io::Read, path::Path};
 
 use anyhow::{bail, Context, Result};
 
@@ -58,36 +58,65 @@ impl Png {
     pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
         Self { chunks }
     }
+
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Png> {
+        let mut file = fs_err::File::open(path.as_ref())?;
+        let mut png_data = vec![];
+        png_data.extend(Png::is_png(&mut file)?);
+        file.read_to_end(&mut png_data)?;
+
+        Ok(Png::try_from(png_data.as_slice())?)
+    }
+
+    pub fn is_png(file: &mut fs_err::File) -> Result<[u8; 8]> {
+        let mut buf = [0u8; 8];
+        file.read_exact(&mut buf)?;
+
+        if buf != Png::STANDARD_HEADER {
+            bail!("Invalid PNG file")
+        }
+
+        Ok(buf)
+    }
+
     pub fn append_chunk(&mut self, chunk: Chunk) {
         self.chunks.push(chunk);
     }
-    pub fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk> {
-        // Maybe room for improvement
-        if let Some(idx) = self.chunks.iter().position(|chunk| {
-            ChunkType::from_str(chunk_type)
-                .and_then(|kind| Ok(&kind == chunk.chunk_type()))
-                .unwrap_or_default()
-        }) {
+
+    pub fn remove_chunk(&mut self, chunk_type: &ChunkType) -> Result<Chunk> {
+        if let Some(idx) = self
+            .chunks
+            .iter()
+            .position(|chunk| chunk_type == chunk.chunk_type())
+        {
             return Ok(self.chunks.remove(idx));
         }
         bail!("'{}' not found", chunk_type)
     }
+
     pub fn header(&self) -> &[u8; 8] {
         &Png::STANDARD_HEADER
     }
+
     pub fn chunks(&self) -> &[Chunk] {
         &self.chunks
     }
-    pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
-        if let Some(idx) = self.chunks.iter().position(|chunk| {
-            ChunkType::from_str(chunk_type)
-                .and_then(|kind| Ok(&kind == chunk.chunk_type()))
-                .unwrap_or_default()
-        }) {
-            return self.chunks.get(idx);
+
+    pub fn chunks_by_type(&self, chunk_type: &ChunkType) -> Option<Vec<&Chunk>> {
+        let mut matches = vec![];
+        for chunk in &self.chunks {
+            if chunk_type == chunk.chunk_type() {
+                matches.push(chunk);
+            }
         }
-        None
+
+        if matches.is_empty() {
+            None
+        } else {
+            Some(matches)
+        }
     }
+
     pub fn as_bytes(&self) -> Vec<u8> {
         Png::STANDARD_HEADER
             .into_iter()
@@ -202,7 +231,9 @@ mod tests {
     #[test]
     fn test_chunk_by_type() {
         let png = testing_png();
-        let chunk = png.chunk_by_type("FrSt").unwrap();
+        let chunk = png
+            .chunks_by_type(&ChunkType::from_str("FrSt").unwrap())
+            .unwrap()[0];
         assert_eq!(&chunk.chunk_type().to_string(), "FrSt");
         assert_eq!(&chunk.data_as_string().unwrap(), "I am the first chunk");
     }
@@ -211,7 +242,9 @@ mod tests {
     fn test_append_chunk() {
         let mut png = testing_png();
         png.append_chunk(chunk_from_strings("TeSt", "Message").unwrap());
-        let chunk = png.chunk_by_type("TeSt").unwrap();
+        let chunk = png
+            .chunks_by_type(&ChunkType::from_str("TeSt").unwrap())
+            .unwrap()[0];
         assert_eq!(&chunk.chunk_type().to_string(), "TeSt");
         assert_eq!(&chunk.data_as_string().unwrap(), "Message");
     }
@@ -220,8 +253,9 @@ mod tests {
     fn test_remove_chunk() {
         let mut png = testing_png();
         png.append_chunk(chunk_from_strings("TeSt", "Message").unwrap());
-        png.remove_chunk("TeSt").unwrap();
-        let chunk = png.chunk_by_type("TeSt");
+        png.remove_chunk(&ChunkType::from_str("TeSt").unwrap())
+            .unwrap();
+        let chunk = png.chunks_by_type(&ChunkType::from_str("TeSt").unwrap());
         assert!(chunk.is_none());
     }
 
