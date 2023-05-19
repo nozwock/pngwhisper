@@ -6,7 +6,7 @@ use std::{
 use anyhow::bail;
 
 /// Section `3.3` of http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkType {
     buf: [u8; 4],
 }
@@ -39,12 +39,14 @@ impl Display for ChunkType {
     }
 }
 
+#[allow(dead_code)]
 impl ChunkType {
     pub fn bytes(&self) -> [u8; 4] {
         self.buf
     }
     pub fn is_valid(&self) -> bool {
-        self.is_reserved_bit_valid() && (!self.is_critical() || !self.is_safe_to_copy())
+        self.is_reserved_bit_valid()
+        // && (!self.is_critical() || !self.is_safe_to_copy())
     }
     pub fn is_critical(&self) -> bool {
         self.buf[0] >> 5 & 1 == 0
