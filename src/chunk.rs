@@ -1,4 +1,7 @@
-use std::fmt::{self, Display};
+use std::{
+    borrow::Cow,
+    fmt::{self, Display},
+};
 
 use anyhow::{bail, Context, Result};
 use itertools::Itertools;
@@ -64,7 +67,7 @@ impl Display for Chunk {
             "{} ({}): \"{}\"",
             self.kind,
             self.crc,
-            String::from_utf8_lossy(&self.data)
+            self.data_as_lossy_string()
         )
     }
 }
@@ -108,6 +111,10 @@ impl Chunk {
         std::str::from_utf8(&self.data)
             .map(|s| s.to_owned())
             .map_err(anyhow::Error::msg)
+    }
+
+    pub fn data_as_lossy_string(&self) -> Cow<'_, str> {
+        String::from_utf8_lossy(&self.data)
     }
 
     pub fn as_bytes(&self) -> Vec<u8> {
