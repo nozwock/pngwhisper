@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::bail;
 
-/// Section `3.3` of http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html
+/// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html#Chunk-naming-conventions
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkType {
     buf: [u8; 4],

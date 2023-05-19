@@ -5,8 +5,8 @@ use itertools::Itertools;
 
 use crate::chunk_type::ChunkType;
 
-/// Section `3.2` of http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html
-#[derive(Debug)]
+/// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html#Chunk-layout
+#[derive(Debug, Clone)]
 pub struct Chunk {
     length: u32,
     kind: ChunkType,
