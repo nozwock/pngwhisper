@@ -59,7 +59,13 @@ impl TryFrom<&[u8]> for Chunk {
 
 impl Display for Chunk {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(
+            f,
+            "{} ({}): \"{}\"",
+            self.kind,
+            self.crc,
+            String::from_utf8_lossy(&self.data)
+        )
     }
 }
 
@@ -81,23 +87,29 @@ impl Chunk {
             crc,
         }
     }
+
     pub fn length(&self) -> u32 {
         self.length
     }
+
     pub fn chunk_type(&self) -> &ChunkType {
         &self.kind
     }
+
     pub fn data(&self) -> &[u8] {
         &self.data
     }
+
     pub fn crc(&self) -> u32 {
         self.crc
     }
+
     pub fn data_as_string(&self) -> Result<String> {
         std::str::from_utf8(&self.data)
             .map(|s| s.to_owned())
             .map_err(anyhow::Error::msg)
     }
+
     pub fn as_bytes(&self) -> Vec<u8> {
         self.length()
             .to_be_bytes()

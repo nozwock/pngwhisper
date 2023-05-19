@@ -47,19 +47,24 @@ impl ChunkType {
     pub fn bytes(&self) -> [u8; 4] {
         self.buf
     }
+
     pub fn is_valid(&self) -> bool {
         self.is_reserved_bit_valid()
         // && (!self.is_critical() || !self.is_safe_to_copy())
     }
+
     pub fn is_critical(&self) -> bool {
         self.buf[0] >> 5 & 1 == 0
     }
+
     pub fn is_public(&self) -> bool {
         self.buf[1] >> 5 & 1 == 0
     }
+
     pub fn is_reserved_bit_valid(&self) -> bool {
         self.buf[2] >> 5 & 1 == 0
     }
+
     pub fn is_safe_to_copy(&self) -> bool {
         self.buf[3] >> 5 & 1 != 0
     }
