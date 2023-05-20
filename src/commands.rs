@@ -5,6 +5,7 @@ use itertools::Itertools;
 
 use crate::{chunk::Chunk, chunk_type::ChunkType, png::Png};
 
+/// Encodes a message into a PNG image
 pub fn encode<P>(file: P, message: &str, chunk_type: ChunkType) -> Result<Png>
 where
     P: AsRef<Path>,
@@ -14,11 +15,12 @@ where
     Ok(png)
 }
 
+/// Searches for hidden messages in a PNG image
 pub fn decode<P>(file: P, chunk_type: ChunkType) -> Result<Vec<String>>
 where
     P: AsRef<Path>,
 {
-    let mut png = Png::from_path(file)?;
+    let png = Png::from_path(file)?;
     Ok(png
         .chunks_by_type(&chunk_type)
         .into_iter()
@@ -26,16 +28,24 @@ where
         .collect_vec())
 }
 
-pub fn remove<P>(file: P, chunk_type: ChunkType) -> Result<()>
+/// Remove a chunk from a PNG image
+pub fn remove<P>(file: P, chunk_type: ChunkType) -> Result<Png>
 where
     P: AsRef<Path>,
 {
-    todo!()
+    let mut png = Png::from_path(file)?;
+    png.remove_chunk(&chunk_type)?;
+    Ok(png)
 }
 
+/// Prints all of the chunks in a PNG file
 pub fn print_chunks<P>(file: P) -> Result<()>
 where
     P: AsRef<Path>,
 {
-    todo!()
+    let png = Png::from_path(file)?;
+    for chunk in png.chunks().iter().map(|chunk| chunk.to_string()) {
+        println!("{}", chunk)
+    }
+    Ok(())
 }

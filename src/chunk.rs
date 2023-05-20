@@ -122,7 +122,7 @@ impl Chunk {
             .to_be_bytes()
             .into_iter()
             .chain(self.chunk_type().bytes().into_iter())
-            .chain(self.data().into_iter().copied())
+            .chain(self.data().iter().copied())
             .chain(self.crc().to_be_bytes().into_iter())
             .collect_vec()
     }

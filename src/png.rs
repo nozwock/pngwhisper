@@ -53,7 +53,7 @@ impl Display for Png {
 #[allow(dead_code)]
 impl Png {
     /// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature
-    const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
+    pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
     pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
         Self { chunks }

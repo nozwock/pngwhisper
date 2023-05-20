@@ -24,7 +24,7 @@ pub enum Commands {
         #[arg(short, long, default_value = "wsPr")]
         kind: Option<ChunkType>,
     },
-    /// Decode a message from a PNG image
+    /// Decode a message in a PNG image
     #[command()]
     Decode {
         #[arg()]
@@ -33,7 +33,7 @@ pub enum Commands {
         #[arg(short, long, default_value = "wsPr")]
         kind: Option<ChunkType>,
     },
-    /// Remove all messages from a PNG image
+    /// Remove a chunk from a PNG image
     #[command(
         after_help = "Caution: Use with care! The PNG file may become corrupted if an incorrect chunk type is used."
     )]
@@ -43,8 +43,10 @@ pub enum Commands {
         /// Chunk type used for the encoded message
         #[arg(short, long, default_value = "wsPr")]
         kind: Option<ChunkType>,
+        #[arg(short, long)]
+        all: bool,
     },
-    /// Prints a list of searchable chunks in a PNG image
+    /// Prints all of the chunks in a PNG file
     #[command()]
     Print {
         #[arg()]
