@@ -3,6 +3,7 @@ use std::io;
 use anyhow::{bail, Result};
 use clap::{CommandFactory, Parser};
 use commands::{decode, encode, print_chunks, remove};
+use console::style;
 
 use crate::args::Cli;
 
@@ -19,9 +20,19 @@ fn main() -> Result<()> {
             kind,
         } => {
             let kind = kind.unwrap();
-            eprintln!("Using '{}' chunk type...", kind);
+            eprintln!(
+                "{}",
+                style(format!("Using '{}' chunk type...", kind))
+                    .italic()
+                    .magenta()
+            );
             fs_err::write(&file, encode(&file, &message, kind)?.as_bytes())?;
-            eprintln!("The message has been successfully encoded into the PNG file.");
+            eprintln!(
+                "{}",
+                style("The message has been successfully encoded into the PNG file.")
+                    .green()
+                    .bold()
+            );
         }
         args::Commands::Decode { file, kind } => {
             let kind = kind.unwrap();
@@ -34,19 +45,33 @@ fn main() -> Result<()> {
                 )
             } else {
                 eprintln!(
-                    "Found {} chunk{} of type '{}'...\n",
-                    decoded_chunks.len(),
-                    if decoded_chunks.len() == 1 { "" } else { "s" },
-                    kind
+                    "{}",
+                    style(format!(
+                        "Found {} chunk{} of type '{}'...\n",
+                        decoded_chunks.len(),
+                        if decoded_chunks.len() == 1 { "" } else { "s" },
+                        kind
+                    ))
+                    .italic()
+                    .magenta()
                 );
-                for chunk in decoded_chunks {
-                    println!("{}", chunk);
+                for (i, chunk) in decoded_chunks.iter().enumerate() {
+                    println!(
+                        "{} \"{}\"",
+                        style(format!("{}:", i + 1)).yellow().bold(),
+                        chunk
+                    )
                 }
             }
         }
         args::Commands::Remove { file, kind, all } => {
             let kind = kind.unwrap();
-            eprintln!("Using '{}' chunk type...", kind);
+            eprintln!(
+                "{}",
+                style(format!("Using '{}' chunk type...", kind))
+                    .italic()
+                    .magenta()
+            );
 
             if all {
                 let mut png = remove(&file, kind)?;
@@ -54,14 +79,25 @@ fn main() -> Result<()> {
                     if png.remove_chunk(&kind).is_err() {
                         fs_err::write(&file, png.as_bytes())?;
                         eprintln!(
-                            "All matching chunks have been successfully removed from the PNG file."
+                            "{}",
+                            style(
+                                "All matching chunks have been \
+                        successfully removed from the PNG file."
+                            )
+                            .green()
+                            .bold()
                         );
                         break;
                     }
                 }
             } else {
                 fs_err::write(&file, remove(&file, kind)?.as_bytes())?;
-                eprintln!("One matching chunk has been successfully removed from the PNG file.");
+                eprintln!(
+                    "{}",
+                    style("One matching chunk has been successfully removed from the PNG file.")
+                        .green()
+                        .bold()
+                );
             }
         }
         args::Commands::Print { file } => {

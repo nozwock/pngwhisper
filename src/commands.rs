@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use anyhow::Result;
+use console::style;
 use itertools::Itertools;
 
 use pngwhisper::png::{chunk::Chunk, chunk_type::ChunkType, Png};
@@ -24,7 +25,7 @@ where
     Ok(png
         .chunks_by_type(&chunk_type)
         .into_iter()
-        .map(|chunk| chunk.to_string())
+        .map(|chunk| chunk.data_as_lossy_string().into())
         .collect_vec())
 }
 
@@ -44,8 +45,14 @@ where
     P: AsRef<Path>,
 {
     let png = Png::from_path(file)?;
-    for chunk in png.chunks().iter().map(|chunk| chunk.to_string()) {
-        println!("{}", chunk)
+    for (i, chunk) in png.chunks().iter().enumerate() {
+        println!(
+            "{} \"{}\"",
+            style(format!("{} ({}):", i + 1, chunk.chunk_type()))
+                .yellow()
+                .bold(),
+            chunk.data_as_lossy_string()
+        )
     }
     Ok(())
 }
