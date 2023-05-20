@@ -51,22 +51,14 @@ fn main() -> Result<()> {
             eprintln!("Using '{}' chunk type...", kind);
 
             if all {
-                let mut png = None;
+                let mut png = remove(&file, kind)?;
                 loop {
-                    match remove(&file, kind) {
-                        Ok(_png) => {
-                            png = Some(_png);
-                        }
-                        Err(err) => {
-                            if let Some(png) = png {
-                                fs_err::write(&file, png.as_bytes())?;
-                                eprintln!("All matching chunks have been successfully removed from the PNG file.");
-                            } else {
-                                bail!(err)
-                            }
-
-                            break;
-                        }
+                    if png.remove_chunk(&kind).is_err() {
+                        fs_err::write(&file, png.as_bytes())?;
+                        eprintln!(
+                            "All matching chunks have been successfully removed from the PNG file."
+                        );
+                        break;
                     }
                 }
             } else {
