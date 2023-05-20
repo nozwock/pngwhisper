@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
+use clap_complete::Shell;
 use pngwhisper::png::chunk_type::ChunkType;
 
 #[derive(Debug, Parser)]
@@ -51,5 +52,11 @@ pub enum Commands {
     Print {
         #[arg()]
         file: PathBuf,
+    },
+    #[command()]
+    /// Generate tab-completion scripts for your shell
+    Completions {
+        #[arg()]
+        shell: Shell,
     },
 }

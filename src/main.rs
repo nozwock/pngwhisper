@@ -1,5 +1,7 @@
+use std::io;
+
 use anyhow::{bail, Result};
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use commands::{decode, encode, print_chunks, remove};
 
 use crate::args::Cli;
@@ -64,6 +66,14 @@ fn main() -> Result<()> {
         }
         args::Commands::Print { file } => {
             print_chunks(file)?;
+        }
+        args::Commands::Completions { shell } => {
+            clap_complete::generate(
+                shell,
+                &mut Cli::command(),
+                env!("CARGO_PKG_NAME"),
+                &mut io::stdout(),
+            );
         }
     }
 
