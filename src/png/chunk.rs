@@ -6,7 +6,7 @@ use std::{
 use anyhow::{bail, Context, Result};
 use itertools::Itertools;
 
-use crate::chunk_type::ChunkType;
+use crate::png::chunk_type::ChunkType;
 
 /// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html#Chunk-layout
 #[derive(Debug, Clone)]
@@ -131,7 +131,6 @@ impl Chunk {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::chunk_type::ChunkType;
     use std::str::FromStr;
 
     fn testing_chunk() -> Chunk {

@@ -1,8 +1,10 @@
-use std::{fmt::Display, io::Read, path::Path};
+pub mod chunk;
+pub mod chunk_type;
 
 use anyhow::{bail, Context, Result};
-
-use crate::{chunk::Chunk, chunk_type::ChunkType};
+use chunk::Chunk;
+use chunk_type::ChunkType;
+use std::{fmt::Display, io::Read, path::Path};
 
 #[derive(Debug, Clone)]
 pub struct Png {
@@ -116,8 +118,6 @@ impl Png {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::chunk::Chunk;
-    use crate::chunk_type::ChunkType;
     use std::convert::TryFrom;
     use std::str::FromStr;
 

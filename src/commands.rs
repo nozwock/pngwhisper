@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Result;
 use itertools::Itertools;
 
-use crate::{chunk::Chunk, chunk_type::ChunkType, png::Png};
+use pngwhisper::png::{chunk::Chunk, chunk_type::ChunkType, Png};
 
 /// Encodes a message into a PNG image
 pub fn encode<P>(file: P, message: &str, chunk_type: ChunkType) -> Result<Png>

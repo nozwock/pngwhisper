@@ -5,11 +5,7 @@ use commands::{decode, encode, print_chunks, remove};
 use crate::args::Cli;
 
 mod args;
-mod chunk;
-mod chunk_type;
 mod commands;
-mod png;
-mod utils;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();

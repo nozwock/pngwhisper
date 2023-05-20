@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
-use crate::chunk_type::ChunkType;
+use pngwhisper::png::chunk_type::ChunkType;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None, arg_required_else_help = true)]
