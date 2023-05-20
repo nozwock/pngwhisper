@@ -141,8 +141,7 @@ mod tests {
 
     #[test]
     pub fn test_valid_chunk_is_valid() {
-        // let chunk = ChunkType::from_str("RuSt").unwrap(); // shouldn't this fail? Critical chunk must be unsafe to copy
-        let chunk = ChunkType::from_str("RuST").unwrap();
+        let chunk = ChunkType::from_str("RuSt").unwrap(); // shouldn't this fail? Critical chunk must be unsafe to copy, i.e. should be "RuST" instead
         assert!(chunk.is_valid());
 
         let chunk = ChunkType::from_str("ruSt").unwrap();
