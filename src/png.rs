@@ -20,24 +20,17 @@ impl TryFrom<&[u8]> for Png {
         let mut offset = 8usize;
         let mut chunks = vec![];
 
-        loop {
-            match value
-                .get(offset..offset + 4)
-                .map(|x| <[u8; 4]>::try_from(x).unwrap())
-            {
-                Some(bytes) => {
-                    let chunk_data_len = u32::from_be_bytes(bytes);
-                    let chunk_len = (chunk_data_len + 4 * 3) as usize;
-                    match value.get(offset..offset + chunk_len) {
-                        Some(chunk_bytes) => chunks.push(Chunk::try_from(chunk_bytes)?),
-                        None => break,
-                    }
-                    offset += chunk_len;
-                }
-                None => {
-                    break;
-                }
+        while let Some(bytes) = value
+            .get(offset..offset + 4)
+            .map(|x| <[u8; 4]>::try_from(x).unwrap())
+        {
+            let chunk_data_len = u32::from_be_bytes(bytes);
+            let chunk_len = (chunk_data_len + 4 * 3) as usize;
+            match value.get(offset..offset + chunk_len) {
+                Some(chunk_bytes) => chunks.push(Chunk::try_from(chunk_bytes)?),
+                None => break,
             }
+            offset += chunk_len;
         }
 
         Ok(Self { chunks })
@@ -65,7 +58,7 @@ impl Png {
         png_data.extend(Png::is_png(&mut file)?);
         file.read_to_end(&mut png_data)?;
 
-        Ok(Png::try_from(png_data.as_slice())?)
+        Png::try_from(png_data.as_slice())
     }
 
     pub fn is_png(file: &mut fs_err::File) -> Result<[u8; 8]> {
@@ -115,7 +108,7 @@ impl Png {
     pub fn as_bytes(&self) -> Vec<u8> {
         Png::STANDARD_HEADER
             .into_iter()
-            .chain(self.chunks.iter().map(|chunk| chunk.as_bytes()).flatten())
+            .chain(self.chunks.iter().flat_map(|chunk| chunk.as_bytes()))
             .collect()
     }
 }
