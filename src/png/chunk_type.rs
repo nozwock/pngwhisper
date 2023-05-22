@@ -5,6 +5,7 @@ use std::{
 
 use anyhow::{bail, Context};
 
+/// A validated PNG chunk type. See the PNG spec for more details. \
 /// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html#Chunk-naming-conventions
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkType {
@@ -44,29 +45,41 @@ impl Display for ChunkType {
 
 #[allow(dead_code)]
 impl ChunkType {
+    /// Returns the raw bytes contained in this chunk
     pub fn bytes(&self) -> [u8; 4] {
         self.buf
     }
 
+    /// Returns the property state of the first byte as described in the PNG spec
+    pub fn is_critical(&self) -> bool {
+        self.buf[0] >> 5 & 1 == 0
+    }
+
+    /// Returns the property state of the second byte as described in the PNG spec
+    pub fn is_public(&self) -> bool {
+        self.buf[1] >> 5 & 1 == 0
+    }
+
+    /// Returns the property state of the third byte as described in the PNG spec
+    pub fn is_reserved_bit_valid(&self) -> bool {
+        self.buf[2] >> 5 & 1 == 0
+    }
+
+    /// Returns the property state of the fourth byte as described in the PNG spec
+    pub fn is_safe_to_copy(&self) -> bool {
+        self.buf[3] >> 5 & 1 != 0
+    }
+
+    /// Returns true if the reserved byte is valid and all four bytes are represented by the characters A-Z or a-z.
+    /// Note that this chunk type should always be valid as it is validated during construction.
     pub fn is_valid(&self) -> bool {
         self.is_reserved_bit_valid()
         // && (!self.is_critical() || !self.is_safe_to_copy())
     }
 
-    pub fn is_critical(&self) -> bool {
-        self.buf[0] >> 5 & 1 == 0
-    }
-
-    pub fn is_public(&self) -> bool {
-        self.buf[1] >> 5 & 1 == 0
-    }
-
-    pub fn is_reserved_bit_valid(&self) -> bool {
-        self.buf[2] >> 5 & 1 == 0
-    }
-
-    pub fn is_safe_to_copy(&self) -> bool {
-        self.buf[3] >> 5 & 1 != 0
+    /// Valid bytes are represented by the characters A-Z or a-z.
+    pub fn is_valid_byte(byte: u8) -> bool {
+        todo!()
     }
 }
 

@@ -6,6 +6,8 @@ use chunk::Chunk;
 use chunk_type::ChunkType;
 use std::{fmt::Display, io::Read, path::Path};
 
+/// A PNG container as described by the PNG spec. \
+/// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html
 #[derive(Debug, Clone)]
 pub struct Png {
     chunks: Vec<Chunk>,
@@ -50,10 +52,12 @@ impl Png {
     /// http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature
     pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
+    /// Creates a `Png` from a list of chunks using the correct header.
     pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
         Self { chunks }
     }
 
+    /// Creates a `Png` from a file path.
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Png> {
         let mut file = fs_err::File::open(path.as_ref())?;
         let mut png_data = vec![];
@@ -74,10 +78,13 @@ impl Png {
         Ok(buf)
     }
 
+    /// Appends a chunk to the end of this `Png` file's `Chunk` list.
     pub fn append_chunk(&mut self, chunk: Chunk) {
         self.chunks.push(chunk);
     }
 
+    /// Searches for a `Chunk` with the specified `chunk_type` and removes the first
+    /// matching `Chunk` from this `Png` list of chunks.
     pub fn remove_chunk(&mut self, chunk_type: &ChunkType) -> Result<Chunk> {
         if let Some(idx) = self
             .chunks
@@ -89,14 +96,18 @@ impl Png {
         bail!("'{}' not found", chunk_type)
     }
 
+    /// The header of this PNG.
     pub fn header(&self) -> &[u8; 8] {
         &Png::STANDARD_HEADER
     }
 
+    /// Lists the `Chunk`s stored in this `Png`
     pub fn chunks(&self) -> &[Chunk] {
         &self.chunks
     }
 
+    /// Searches for `Chunk` with the specified `chunk_type` and returns all the
+    /// matching `Chunk` from this `Png`.
     pub fn chunks_by_type(&self, chunk_type: &ChunkType) -> Vec<&Chunk> {
         let mut matches = vec![];
         for chunk in &self.chunks {
@@ -107,6 +118,8 @@ impl Png {
         matches
     }
 
+    /// Returns this `Png` as a byte sequence.
+    /// These bytes will contain the header followed by the bytes of all of the chunks.
     pub fn as_bytes(&self) -> Vec<u8> {
         Png::STANDARD_HEADER
             .into_iter()
@@ -204,6 +217,7 @@ mod tests {
 
         chunk_bytes.append(&mut bad_chunk);
 
+        // FIXME: prepend header
         let png = Png::try_from(chunk_bytes.as_ref());
 
         assert!(png.is_err());
