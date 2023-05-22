@@ -16,7 +16,11 @@ impl TryFrom<[u8; 4]> for ChunkType {
     type Error = anyhow::Error;
 
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
-        Ok(Self { buf: value })
+        if value.iter().all(|byte| byte.is_ascii_alphabetic()) {
+            Ok(Self { buf: value })
+        } else {
+            bail!("Invalid because of non-alphabetic chars")
+        }
     }
 }
 
@@ -73,13 +77,7 @@ impl ChunkType {
     /// Returns true if the reserved byte is valid and all four bytes are represented by the characters A-Z or a-z.
     /// Note that this chunk type should always be valid as it is validated during construction.
     pub fn is_valid(&self) -> bool {
-        self.is_reserved_bit_valid()
-        // && (!self.is_critical() || !self.is_safe_to_copy())
-    }
-
-    /// Valid bytes are represented by the characters A-Z or a-z.
-    pub fn is_valid_byte(byte: u8) -> bool {
-        todo!()
+        self.is_reserved_bit_valid() && self.buf.iter().all(|byte| byte.is_ascii_alphabetic())
     }
 }
 
@@ -154,7 +152,7 @@ mod tests {
 
     #[test]
     pub fn test_valid_chunk_is_valid() {
-        let chunk = ChunkType::from_str("RuSt").unwrap(); // shouldn't this fail? Critical chunk must be unsafe to copy, i.e. should be "RuST" instead
+        let chunk = ChunkType::from_str("RuSt").unwrap();
         assert!(chunk.is_valid());
 
         let chunk = ChunkType::from_str("ruSt").unwrap();
