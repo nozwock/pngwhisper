@@ -58,7 +58,7 @@ impl Png {
     }
 
     /// Creates a `Png` from a file path.
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Png> {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Png> {
         let mut file = fs_err::File::open(path.as_ref())?;
         let mut png_data = vec![];
         png_data.extend(Png::is_png(&mut file)?);
