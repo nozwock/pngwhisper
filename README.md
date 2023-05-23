@@ -2,6 +2,18 @@
 
 An implementation of [this project idea](https://picklenerd.github.io/pngme_book/introduction.html#what-are-we-making).
 
+## Build Instructions
+
+To build the project, follow these steps:
+
+1. Install the Rust toolchain for your operating system. You can find installation instructions for [Unix-like OS](https://www.rust-lang.org/tools/install) or [Windows](https://forge.rust-lang.org/infra/other-installation-methods.html#standalone-installers).
+2. Navigate to the project directory.
+3. Compile the project using the following command:
+    ```
+    cargo build --release
+    ```
+4. After successful compilation, the binary will be located in the `./target/release/` directory.
+
 ## Usage
 
 **Command Overview:**
