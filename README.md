@@ -1,6 +1,6 @@
 # PngWhisper
 
-An implementation of [this project idea](https://picklenerd.github.io/pngme_book/introduction.html).
+An implementation of [this project idea](https://picklenerd.github.io/pngme_book/introduction.html#what-are-we-making).
 
 ## Usage
 
